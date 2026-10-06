@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,13 +36,31 @@ public class UserData {
   public void loadData(String url, Activity activity){
       executor.execute(()->{
           File file = Downloader.downloadFile(url, context.getCacheDir());
-          if(file!=null)
-            activity.runOnUiThread(()->{
-              Gson gson = new Gson();
-              userData = gson.fromJson(readText(file), (Type) UserList.class);
+          UserList list = null;
+          if(file != null) {
+              try {
+                  Gson gson = new Gson();
+                  list = gson.fromJson(readText(file), (Type) UserList.class);
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
+          }
+
+          if (list == null || list.getUserList() == null || list.getUserList().isEmpty()) {
+              ArrayList<User> defaultUsers = new ArrayList<>();
+              defaultUsers.add(new User(1, "User One", "password123", "https://picsum.photos/id/1011/300/400", "Nature photographer and traveler."));
+              defaultUsers.add(new User(2, "User Two", "password123", "https://picsum.photos/id/1025/300/400", "Coffee enthusiast and software developer."));
+              defaultUsers.add(new User(3, "User Three", "password123", "https://picsum.photos/id/1062/300/400", "Art director and minimalist designer."));
+              defaultUsers.add(new User(4, "User Four", "password123", "https://picsum.photos/id/1074/300/400", "Mountain hiker and outdoor explorer."));
+              list = new UserList(defaultUsers);
+          }
+
+          final UserList finalList = list;
+          activity.runOnUiThread(()->{
+              userData = finalList;
               UserAdapter adapter = new UserAdapter(userData.getUserList(), context);
               gridview.setAdapter(adapter);
-            });
+          });
         });
   }
 

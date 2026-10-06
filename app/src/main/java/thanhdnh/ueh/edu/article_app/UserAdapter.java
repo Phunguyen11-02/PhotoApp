@@ -50,7 +50,13 @@ public class UserAdapter extends BaseAdapter {
       dataitem = (MyView) convertView.getTag();
     }
 
-    Picasso.get().load(userList.get(position).getUrl_profile()).resize(300, 400).centerCrop().into(dataitem.iv_profile);
+    Picasso.get()
+        .load(userList.get(position).getUrl_profile())
+        .placeholder(android.R.drawable.ic_menu_gallery)
+        .error(android.R.drawable.ic_menu_report_image)
+        .resize(300, 400)
+        .centerCrop()
+        .into(dataitem.iv_profile);
     dataitem.tv_uname.setText(userList.get(position).getUname());
     return convertView;
   }
